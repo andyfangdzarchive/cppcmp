@@ -3,6 +3,7 @@ import filecmp
 import os
 
 PYTHON_CMD = "python3"
+is_windows = False
 
 def compile(filename):
   prefix, suffix = filename.split('.')
@@ -10,7 +11,10 @@ def compile(filename):
     return [PYTHON_CMD, filename]
   elif suffix == "cpp":
     call(['g++', filename])
-    return ['a.out']
+    if is_windows:
+      return ['a.exe']
+    else:
+      return ['./a.out']
 
 def redirect(command, input_f=None, output_f=None):
   if input_f is not None:
