@@ -2,10 +2,12 @@ import sys
 import filecmp
 import os
 
+PYTHON_CMD = "python3"
+
 def compile(filename):
   prefix, suffix = filename.split('.')
   if suffix == "py":
-    return ['python', filename]
+    return [PYTHON_CMD, filename]
   elif suffix == "cpp":
     call(['g++', filename])
     return ['a.out']
