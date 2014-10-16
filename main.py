@@ -1,81 +1,48 @@
-#include <cstdio>
-#include <cstring>
-#include <algorithm>
-#include <vector>
-#define base (10000)
-#define SIZE (1000100)
+import sys
+import filecmp
+import os
 
-using namespace std;
-typedef long long LL;
+PYTHON_CMD = "python3"
+is_windows = False
 
-LL a;
-LL b;
-int x[20000];
-int y[20000];
-int z[20000];
-vector<pair<LL,LL> > ans;
+def compile(filename):
+  prefix, suffix = filename.split('.')
+  if suffix == "py":
+    return [PYTHON_CMD, filename]
+  elif suffix == "cpp":
+    call(['g++', filename])
+    if is_windows:
+      return ['a.exe']
+    else:
+      return ['./a.out']
 
-void Multiply(int *o,int *p,int *q) {
-	z[0] = p[0] + q[0];
-	memset(z, 0, sizeof(int)*(z[0]+10));
-	for(int i=1; i<=p[0]; i++) {
-		for(int j=1; j<=q[0]; j++) {
-			z[i+j-1] += p[i]*q[j];
-		}
-	}
-	for(int i=1; i<=z[0]; i++) {
-		if(z[i]>=10) {
-			z[i+1] += z[i] / base;
-			z[i] %= base;
-		}
-	}
-	while(z[0]>1 && z[z[0]]==0) --z[0];
-	memcpy(o, z, sizeof(z));
-}
+def redirect(command, input_f=None, output_f=None):
+  if input_f is not None:
+    command += ['<', input_f]
+  if output_f is not None:
+    command += ['>', output_f]
+  return command
 
-void Solve1() {
-	LL tmp = a;
-	while(tmp) {
-		x[++x[0]] = tmp % base;
-		tmp /= base;
-	}
-	y[++y[0]] = 1;
-	for(int i=1; i<=b; i++) {
-		Multiply(y,y,x);
-	}
-	printf("%d",y[y[0]]);
-	for(int i=y[0]-1; i>=1; i--) printf("%04d",y[i]);
-	putchar('\n');
-}
+def call(command):
+  os.system(" ".join(command))
 
-/*void Solve2() {
-	LL tmp = a;
-	for(LL i=2; i*i<=a; i++) {
-		if(tmp%i==0) {
-			LL cnt(0);
-			while(tmp%i==0) {
-				tmp /= i;
-				cnt++;
-			}
-			cnt *= b;
-			ans.push_back(make_pair(i,cnt));
-			if(tmp==1) break;
-		}
-	}
-	if(tmp!=1) ans.push_back(make_pair(tmp,b));
-	for(int i=0; i<ans.size(); i++) {
-		if(i!=0) putchar('*');
-		printf("%lld",ans[i].first);
-		if(ans[i].second!=1) printf("^%lld",ans[i].second);
-	}
-	putchar('\n');
-}*/
+if __name__ == "__main__":
+  GENERATOR = sys.argv[1]
+  PRGM1 = sys.argv[2]
+  PRGM2 = sys.argv[3]
+  INPUT_FILE = "input.txt"
+  N = int(sys.argv[4])
+  generator_cmd, prgm1_cmd, prgm2_cmd = [ compile(x) for x in [GENERATOR, PRGM1, PRGM2] ]
 
-int main() {
+  correct = 0
+  for i in range(N):
+    call(redirect(generator_cmd, output_f=INPUT_FILE))
+    call(redirect(prgm1_cmd, input_f=INPUT_FILE, output_f="prgm1.out"))
+    call(redirect(prgm2_cmd, input_f=INPUT_FILE, output_f="prgm2.out"))
+    if filecmp.cmp("prgm1.out", "prgm2.out"):
+      print("Execution %d correct." % (i + 1))
+      correct += 1
+    else:
+      print("Execution %d error." % (i + 1))
 
-	scanf("%lld %lld",&a,&b);
-	Solve1();
-
-
-	return 0;
-}
+  print("Test completed. AC rate:%d/%d" % (correct, N))
