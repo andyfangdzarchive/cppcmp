@@ -8,7 +8,7 @@ def compile(filename):
     return ['python', filename]
   elif suffix == "cpp":
     call(['g++', filename])
-    return ['a.out']
+    return ['./a.out']
 
 def redirect(command, input_f=None, output_f=None):
   if input_f is not None:
